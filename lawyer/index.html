@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I WORK / Lawyer — El agente legal que busca, resuelve y te dice el siguiente paso</title>
+<meta name="description" content="I WORK / Lawyer: agente de IA para abogados independientes y firmas jurídicas. Busca jurisprudencia, resuelve dudas y explica el procedimiento paso a paso.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F4F1EA;
+    --paper:#FFFFFF;
+    --ink:#211C16;
+    --muted:#6E6659;
+    --line:#E6DFD1;
+    --clay:#D97757;
+    --clay-dark:#BC5A3C;
+    --clay-tint:#F3E1D6;
+    --navy:#2B3A4A;
+    --navy-tint:#E4E9EE;
+    --r:16px; --r-lg:22px;
+    --serif:'Source Serif 4', Georgia, serif;
+    --sans:'Inter', system-ui, sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--cream); color:var(--ink); font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 32px;}
+  img{max-width:100%; display:block;}
+  a{color:inherit;}
+  ::selection{background:var(--clay-tint);}
+
+  .eyebrow{font-family:var(--mono); font-size:12px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; color:var(--clay-dark); margin-bottom:16px; display:flex; align-items:center; gap:8px;}
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--clay);}
+  h1,h2,h3{font-family:var(--serif); color:var(--ink); letter-spacing:-0.01em; font-weight:600;}
+  p{color:var(--muted);}
+
+  .btn{display:inline-flex; align-items:center; gap:8px; font-family:var(--sans); font-weight:600; font-size:14.5px;
+    padding:14px 26px; border-radius:100px; text-decoration:none; border:1.5px solid transparent; transition:transform .18s, box-shadow .18s, background .18s;}
+  .btn-clay{background:var(--clay); color:#fff;}
+  .btn-clay:hover{background:var(--clay-dark); transform:translateY(-2px); box-shadow:0 10px 22px rgba(217,119,87,.28);}
+  .btn-outline{border-color:var(--line); color:var(--ink); background:transparent;}
+  .btn-outline:hover{border-color:var(--clay); color:var(--clay-dark);}
+  .ghost{font-family:var(--mono); font-weight:500; font-size:13px; text-decoration:none; color:var(--muted); border-bottom:1px solid var(--line); padding-bottom:2px;}
+  .ghost:hover{color:var(--clay-dark); border-color:var(--clay);}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* nav */
+  .nav{position:sticky; top:0; z-index:50; background:rgba(244,241,234,.88); backdrop-filter:blur(12px); border-bottom:1px solid var(--line);}
+  .nav__i{max-width:1120px; margin:0 auto; padding:18px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px;}
+  .nav__brand{font-family:var(--serif); font-weight:700; font-size:18px; letter-spacing:-.01em; display:flex; align-items:center; gap:8px;}
+  .nav__brand .mark{width:9px; height:9px; border-radius:2px; background:var(--clay); transform:rotate(45deg);}
+  .nav__brand small{font-family:var(--mono); font-weight:500; font-size:11px; color:var(--muted); letter-spacing:.03em; margin-left:2px;}
+  .nav__links{display:flex; gap:28px; list-style:none; font-size:14px; font-weight:500;}
+  .nav__links a{text-decoration:none; color:var(--muted); transition:color .15s;}
+  .nav__links a:hover{color:var(--ink);}
+  @media (max-width:860px){ .nav__links{display:none;} }
+
+  /* hero */
+  .hero{padding:80px 0 60px;}
+  .hero__grid{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center;}
+  @media (max-width:980px){ .hero__grid{grid-template-columns:1fr;} }
+  .hero h1{font-size:clamp(32px,4vw,50px); line-height:1.1; margin-bottom:22px;}
+  .hero h1 em{font-style:normal; color:var(--clay-dark);}
+  .hero__sub{font-size:16.5px; max-width:480px; margin-bottom:30px;}
+  .hero__ctas{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:22px;}
+  .hero__trust{font-family:var(--mono); font-size:11.5px; color:var(--muted); letter-spacing:.02em;}
+
+  .hero__card{background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); padding:8px; box-shadow:0 40px 80px -36px rgba(33,28,22,.22);}
+  .hero__card-inner{border:1px solid var(--line); border-radius:calc(var(--r-lg) - 6px); overflow:hidden;}
+  .hc-bar{display:flex; align-items:center; gap:8px; padding:13px 16px; border-bottom:1px solid var(--line); background:var(--cream);}
+  .hc-dot{width:8px; height:8px; border-radius:50%; background:#DAD2C2;}
+  .hc-title{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-left:6px;}
+  .hc-body{padding:20px; display:flex; flex-direction:column; gap:12px;}
+  .hc-msg{max-width:88%; padding:11px 14px; border-radius:14px; font-size:13.5px; line-height:1.5;}
+  .hc-msg.q{background:var(--cream); border:1px solid var(--line); align-self:flex-end; border-bottom-right-radius:4px;}
+  .hc-msg.a{background:var(--clay-tint); align-self:flex-start; border-bottom-left-radius:4px; color:var(--ink);}
+  .hc-msg.a .step-tag{display:inline-block; font-family:var(--mono); font-size:10px; color:var(--clay-dark); background:#fff; padding:2px 7px; border-radius:5px; margin-top:8px; letter-spacing:.03em;}
+
+  /* section shell */
+  .section{padding:80px 0;}
+  .section--tight{padding:58px 0;}
+  .sec-h{max-width:620px; margin-bottom:48px;}
+  .sec-h h2{font-size:clamp(25px,3vw,36px); line-height:1.18;}
+  .sec-h p{margin-top:14px; font-size:15.5px;}
+  .sec-h.center{margin-left:auto; margin-right:auto; text-align:center;}
+
+  /* diferenciador strip */
+  .diff-strip{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .diff-strip__i{padding:30px 28px; border-right:1px solid var(--line);}
+  .diff-strip__i:last-child{border-right:none;}
+  .diff-strip__i .k{font-family:var(--mono); font-size:11px; color:var(--clay-dark); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;}
+  .diff-strip__i p{font-size:13.5px; color:var(--ink);}
+  @media (max-width:760px){ .diff-strip{grid-template-columns:1fr;} .diff-strip__i{border-right:none; border-bottom:1px solid var(--line);} }
+
+  /* cerebro / chat legal */
+  .brain{background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); overflow:hidden; box-shadow:0 30px 60px -30px rgba(33,28,22,.18);}
+  .brain-wrap{display:grid; grid-template-columns:220px 1fr;}
+  @media (max-width:760px){ .brain-wrap{grid-template-columns:1fr;} }
+  .chat-header{padding:20px; border-right:1px solid var(--line); background:var(--cream);}
+  @media (max-width:760px){ .chat-header{border-right:none; border-bottom:1px solid var(--line);} }
+  .chat-header .t{font-family:var(--serif); font-weight:600; font-size:16px; margin-bottom:6px;}
+  .chat-header .s{font-family:var(--mono); font-size:11px; color:var(--muted); line-height:1.6;}
+  .areas-list{margin-top:16px; display:flex; flex-direction:column; gap:6px;}
+  .country-label{display:block; font-family:var(--mono); font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-top:18px; margin-bottom:7px;}
+  .country-select{width:100%; font-family:var(--sans); font-size:13px; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink); outline:none; cursor:pointer;}
+  .country-select:focus{border-color:var(--clay);}
+  .area-item{font-size:12.5px; padding:8px 10px; border-radius:8px; background:#fff; border:1px solid var(--line); display:flex; align-items:center; gap:8px;}
+  .area-item .k{font-family:var(--mono); font-size:10px; color:var(--clay-dark);}
+  .chat-body{padding:20px; display:flex; flex-direction:column; min-height:340px;}
+  .chat-log{flex:1; display:flex; flex-direction:column; gap:12px; overflow-y:auto; max-height:360px; padding-right:4px;}
+  .msg{max-width:82%; padding:12px 15px; border-radius:15px; font-size:13.5px; line-height:1.55;}
+  .msg.user{background:var(--clay); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;}
+  .msg.bot{background:var(--cream); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:4px;}
+  .brain-result h4{font-family:var(--serif); font-size:15px; margin-bottom:6px; color:var(--clay-dark);}
+  .brain-result p{font-size:13px; margin-bottom:4px;}
+  .brain-result .proc-tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; color:var(--navy); background:var(--navy-tint); padding:4px 9px; border-radius:6px; margin-top:10px;}
+  .idea-list{list-style:none; margin-top:6px;}
+  .idea-list li{font-size:13px; padding-left:16px; position:relative; margin-bottom:5px;}
+  .idea-list li:before{content:"→"; position:absolute; left:0; color:var(--clay-dark);}
+  .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+  .chip{font-family:var(--sans); font-size:12px; padding:8px 13px; border-radius:100px; border:1px solid var(--line); background:#fff; cursor:pointer; transition:border-color .15s, background .15s;}
+  .chip:hover{border-color:var(--clay); background:var(--clay-tint);}
+  .chat-input-row{display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
+  .chat-input-row input{flex:1; border:1px solid var(--line); border-radius:100px; padding:11px 16px; font-family:var(--sans); font-size:13.5px; outline:none; background:#fff;}
+  .chat-input-row input:focus{border-color:var(--clay);}
+  .send-btn{background:var(--clay); color:#fff; border:none; width:42px; height:42px; border-radius:50%; flex-shrink:0; font-size:17px; cursor:pointer;}
+  .send-btn:hover{background:var(--clay-dark);}
+  .typing{display:flex; gap:4px; padding:12px 15px;}
+  .typing span{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite ease-in-out;}
+  .typing span:nth-child(2){animation-delay:.2s;} .typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.3;} 40%{opacity:1;}}
+
+  /* audiencias */
+  .audience-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  @media (max-width:860px){ .audience-grid{grid-template-columns:1fr;} }
+  .audience-card{background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); padding:32px;}
+  .audience-card .tag{font-family:var(--mono); font-size:11px; color:var(--clay-dark); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;}
+  .audience-card h3{font-size:21px; margin-bottom:16px;}
+  .audience-card ul{list-style:none; display:flex; flex-direction:column; gap:11px;}
+  .audience-card li{display:flex; gap:10px; font-size:14px; color:var(--ink); align-items:flex-start;}
+  .audience-card li:before{content:"✓"; color:var(--clay-dark); font-weight:700; flex-shrink:0;}
+
+  /* procedimiento timeline */
+  .timeline{position:relative; padding-left:32px;}
+  .timeline:before{content:""; position:absolute; left:9px; top:8px; bottom:8px; width:2px; background:var(--line);}
+  .tl-item{position:relative; padding-bottom:34px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item:before{content:""; position:absolute; left:-32px; top:2px; width:20px; height:20px; border-radius:50%; background:var(--clay-tint); border:2px solid var(--clay);}
+  .tl-item .step-n{font-family:var(--mono); font-size:10.5px; color:var(--clay-dark); text-transform:uppercase; letter-spacing:.05em; margin-bottom:5px;}
+  .tl-item h4{font-family:var(--serif); font-size:16.5px; font-weight:600; margin-bottom:6px;}
+  .tl-item p{font-size:13.5px; margin-bottom:8px;}
+  .tl-item .ai-note{display:flex; gap:8px; align-items:flex-start; background:var(--navy-tint); border-radius:10px; padding:10px 12px; font-size:12.5px; color:var(--navy);}
+  .tl-item .ai-note b{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.04em; display:block; margin-bottom:2px;}
+
+  /* compliance strip */
+  .compliance{display:flex; gap:16px; align-items:flex-start; background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); padding:22px 24px;}
+  .compliance .ic{width:36px; height:36px; border-radius:10px; background:var(--navy-tint); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .compliance p{font-size:13px; margin:0;}
+  .compliance b{color:var(--ink);}
+
+  /* cta final */
+  .cta-final{background:var(--ink); border-radius:var(--r-lg); padding:56px 48px; text-align:center; color:#fff;}
+  .cta-final h2{color:#fff; font-size:clamp(25px,3.2vw,34px); margin-bottom:14px;}
+  .cta-final p{color:#C9C1B4; max-width:460px; margin:0 auto 28px; font-size:15px;}
+  .cta-final .hero__ctas{justify-content:center;}
+  .cta-final .btn-outline{border-color:#4A433A; color:#fff;}
+  .cta-final .btn-outline:hover{border-color:var(--clay);}
+
+  footer{padding:36px 0; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;}
+  footer .fmark{font-family:var(--mono); font-size:12px; color:var(--muted);}
+  footer .flinks{display:flex; gap:20px; font-family:var(--mono); font-size:12px;}
+  footer .flinks a{color:var(--muted); text-decoration:none;}
+  footer .flinks a:hover{color:var(--clay-dark);}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav__i">
+    <div class="nav__brand"><span class="mark"></span>I WORK<small>/ Lawyer</small></div>
+    <ul class="nav__links">
+      <li><a href="#cerebro">El agente</a></li>
+      <li><a href="#audiencias">Para quién</a></li>
+      <li><a href="#procedimiento">Procedimiento</a></li>
+    </ul>
+    <a class="btn btn-clay" href="#cta" style="padding:11px 22px; font-size:13.5px;">Hablar con el agente →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap hero__grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>I WORK / Lawyer</div>
+      <h1>No solo busca jurisprudencia. <em>Te dice qué sigue.</em></h1>
+      <p class="hero__sub">Un agente de IA para abogados independientes y firmas jurídicas: busca normativa y jurisprudencia, resuelve tu duda, y te explica el siguiente paso procesal — con plazos y todo.</p>
+      <div class="hero__ctas">
+        <a class="btn btn-clay" href="#cta">Hablar con el agente →</a>
+        <a class="btn btn-outline" href="#procedimiento">Ver cómo explica un procedimiento</a>
+      </div>
+      <div class="hero__trust">// construido sobre normativa y jurisprudencia colombiana — con supervisión humana obligatoria</div>
+    </div>
+
+    <div class="hero__card">
+      <div class="hero__card-inner">
+        <div class="hc-bar">
+          <div class="hc-dot"></div><div class="hc-dot"></div><div class="hc-dot"></div>
+          <div class="hc-title">i-work-lawyer://consulta</div>
+        </div>
+        <div class="hc-body">
+          <div class="hc-msg q">Mi cliente fue despedido sin justa causa hace 8 días, ¿qué procede?</div>
+          <div class="hc-msg a">Aplica indemnización del Art. 64 CST. Tienes 3 años para reclamar, pero si buscas reintegro o hay fuero, el reloj corre distinto.
+            <span class="step-tag">SIGUIENTE PASO: reclamación directa antes de demanda</span>
+          </div>
+          <div class="hc-msg q">¿Y si no responde la empresa?</div>
+          <div class="hc-msg a">A los 30 días sin respuesta, procede demanda laboral ordinaria — audiencia de conciliación en un plazo aprox. de 2 a 4 meses según el juzgado.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="diff-strip reveal">
+    <div class="diff-strip__i">
+      <div class="k">No solo resultados</div>
+      <p>Otras IA legales te devuelven una lista de sentencias. I WORK / Lawyer te dice qué hacer con ellas.</p>
+    </div>
+    <div class="diff-strip__i">
+      <div class="k">Explica el procedimiento</div>
+      <p>Cada respuesta viene con el siguiente paso procesal, el plazo estimado y la norma que lo respalda.</p>
+    </div>
+    <div class="diff-strip__i">
+      <div class="k">Para independiente y firma</div>
+      <p>Funciona igual de bien para un abogado solo que para un equipo completo con casos activos.</p>
+    </div>
+  </div>
+</div>
+
+<section class="section" id="cerebro">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="eyebrow"><span class="dot"></span>El agente en vivo</div>
+      <h2>Escribe tu caso. Recibe la norma, la jurisprudencia y el siguiente paso.</h2>
+      <p>Esta es una simulación del agente — prueba con una situación real de tu práctica.</p>
+    </div>
+
+    <div class="brain reveal">
+      <div class="brain-wrap">
+        <div class="chat-header">
+          <div class="t">Áreas del agente</div>
+          <div class="s">Investiga en tiempo real, según el país que elijas.</div>
+          <div class="areas-list">
+            <div class="area-item"><span class="k">01</span> Derecho laboral</div>
+            <div class="area-item"><span class="k">02</span> Derecho civil</div>
+            <div class="area-item"><span class="k">03</span> Derecho comercial</div>
+            <div class="area-item"><span class="k">04</span> Derecho de familia</div>
+            <div class="area-item"><span class="k">05</span> Derecho administrativo</div>
+          </div>
+          <label class="country-label" for="countrySelect">País de la consulta</label>
+          <select id="countrySelect" class="country-select">
+            <option value="Colombia" selected>🇨🇴 Colombia</option>
+            <option value="México">🇲🇽 México</option>
+            <option value="España">🇪🇸 España</option>
+            <option value="Argentina">🇦🇷 Argentina</option>
+            <option value="Chile">🇨🇱 Chile</option>
+            <option value="Perú">🇵🇪 Perú</option>
+            <option value="Ecuador">🇪🇨 Ecuador</option>
+            <option value="Panamá">🇵🇦 Panamá</option>
+            <option value="Estados Unidos">🇺🇸 Estados Unidos</option>
+            <option value="otro">🌐 Otro país (dímelo en el chat)</option>
+          </select>
+        </div>
+        <div class="chat-body">
+          <div class="chat-log" id="chatLog"></div>
+          <div class="quick-replies" id="quickReplies"></div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Ej: mi cliente no ha recibido pago de arrendamiento hace 3 meses...">
+            <button class="send-btn" id="sendBtn">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight" id="audiencias">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="eyebrow"><span class="dot"></span>Para quién</div>
+      <h2>Un mismo agente, dos formas de trabajar.</h2>
+    </div>
+    <div class="audience-grid reveal">
+      <div class="audience-card">
+        <div class="tag">Abogado independiente</div>
+        <h3>Trabaja como si tuvieras un asociado junior full-time.</h3>
+        <ul>
+          <li>Resuelve dudas puntuales en segundos, con la norma citada</li>
+          <li>Redacta primeros borradores de memoriales y derechos de petición</li>
+          <li>Te avisa el siguiente paso y el plazo antes de que se te pase</li>
+          <li>Sin licencias corporativas ni mínimos de usuarios</li>
+        </ul>
+      </div>
+      <div class="audience-card">
+        <div class="tag">Firma jurídica</div>
+        <h3>Todo el equipo consultando la misma fuente, con vigilancia activa.</h3>
+        <ul>
+          <li>Vigilancia de procesos activos en la Rama Judicial, con alertas de vencimiento</li>
+          <li>Cada abogado consulta con el contexto completo del caso, no desde cero</li>
+          <li>Estandariza cómo se investiga y se redacta en toda la firma</li>
+          <li>Panel de casos por asociado, con trazabilidad de cada consulta</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="procedimiento">
+  <div class="wrap">
+    <div class="sec-h reveal">
+      <div class="eyebrow"><span class="dot"></span>Informativo en su procedimiento</div>
+      <h2>Así explica el agente un proceso real, de principio a fin.</h2>
+      <p>Ejemplo: proceso ejecutivo por incumplimiento de contrato — cada etapa con su nota del agente.</p>
+    </div>
+
+    <div class="timeline reveal">
+      <div class="tl-item">
+        <div class="step-n">Etapa 1</div>
+        <h4>Demanda ejecutiva</h4>
+        <p>Se presenta con el título ejecutivo (contrato, pagaré o factura) y la liquidación de la obligación.</p>
+        <div class="ai-note"><div><b>Nota del agente</b>Verifica que el título cumpla los requisitos del Art. 422 CGP antes de radicar — es la causa más común de rechazo.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="step-n">Etapa 2</div>
+        <h4>Mandamiento de pago</h4>
+        <p>El juez libra la orden de pago y decreta embargos si se solicitaron medidas cautelares.</p>
+        <div class="ai-note"><div><b>Nota del agente</b>Tiempo estimado: 15-30 días hábiles según el juzgado. El agente te avisa si el proceso supera el promedio.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="step-n">Etapa 3</div>
+        <h4>Notificación al ejecutado</h4>
+        <p>Se notifica personalmente o por aviso. Desde ahí corren los términos para excepcionar.</p>
+        <div class="ai-note"><div><b>Nota del agente</b>El ejecutado tiene 10 días hábiles para proponer excepciones — el agente calcula la fecha exacta por ti.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="step-n">Etapa 4</div>
+        <h4>Sentencia y remate</h4>
+        <p>Si no hay excepciones o son rechazadas, se sigue adelante con la ejecución hasta el pago o remate de bienes.</p>
+        <div class="ai-note"><div><b>Nota del agente</b>El agente te recuerda revisar el avalúo de bienes antes del remate — ahí se pierde más valor del necesario.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="compliance reveal">
+    <div class="ic">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B3A4A" stroke-width="1.8"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <p><b>El agente asiste, el abogado decide.</b> I WORK / Lawyer no reemplaza el criterio jurídico ni la responsabilidad profesional — cada respuesta requiere verificación humana, como lo exige la Corte Constitucional en la Sentencia T-323 de 2024.</p>
+  </div>
+</div>
+
+<section class="section" id="cta">
+  <div class="wrap">
+    <div class="cta-final reveal">
+      <div class="eyebrow" style="justify-content:center; color:#E8A98C;"><span class="dot" style="background:var(--clay);"></span>Siguiente paso</div>
+      <h2>Prueba el agente con un caso real de tu práctica.</h2>
+      <p>Agenda una demo de 20 minutos — te mostramos el agente trabajando sobre un caso tuyo, no una presentación genérica.</p>
+      <div class="hero__ctas">
+        <a class="btn btn-clay" href="https://wa.me/573026665252?text=Quiero%20una%20demo%20de%20I%20WORK%20Lawyer" target="_blank">Agendar demo por WhatsApp →</a>
+        <a class="btn btn-outline" href="https://calendly.com/iworkcenter-info/30min" target="_blank">Agendar directo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; width:100%;">
+    <div class="fmark">I WORK / Lawyer © I WORK — Centro de Experiencia de AI</div>
+    <div class="flinks">
+      <a href="https://wa.me/573026665252" target="_blank">WhatsApp</a>
+      <a href="https://calendly.com/iworkcenter-info/30min" target="_blank">Agendar</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // reveal on scroll
+  const els = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.1});
+  els.forEach(el=>io.observe(el));
+
+  // ---------- cerebro legal real: I WORK / Lawyer conectado a Claude ----------
+  const chatLog = document.getElementById('chatLog');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const quickReplies = document.getElementById('quickReplies');
+  const countrySelect = document.getElementById('countrySelect');
+
+  let conversation = []; // historial que se envía completo en cada llamada, tal como exige la API
+
+  function addUser(text){
+    const d = document.createElement('div');
+    d.className = 'msg user';
+    d.textContent = text;
+    chatLog.appendChild(d);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+  function addBot(html){
+    const d = document.createElement('div');
+    d.className = 'msg bot';
+    d.innerHTML = html;
+    chatLog.appendChild(d);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return d;
+  }
+  function showTyping(){
+    const d = document.createElement('div');
+    d.className = 'msg bot';
+    d.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    chatLog.appendChild(d);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return d;
+  }
+  function addQuickReplies(list){
+    quickReplies.innerHTML = '';
+    list.forEach(text=>{
+      const c = document.createElement('button');
+      c.className = 'chip';
+      c.textContent = text;
+      c.addEventListener('click', ()=>{ chatInput.value = text; handleSend(); });
+      quickReplies.appendChild(c);
+    });
+  }
+
+  // Convierte texto plano con **negrita** y saltos de línea a HTML simple y seguro
+  function formatReply(text){
+    const div = document.createElement('div');
+    div.textContent = text;
+    let escaped = div.innerHTML;
+    escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    escaped = escaped.replace(/\n/g, '<br>');
+    return escaped;
+  }
+
+  function systemPrompt(){
+    const country = countrySelect.value === 'otro'
+      ? 'el país que la persona indique en su mensaje (pregúntalo si no lo dice)'
+      : countrySelect.value;
+    return `Eres el agente legal de I WORK / Lawyer, para abogados independientes y firmas jurídicas. ` +
+      `El usuario está consultando sobre la legislación de ${country}. Investiga y responde con base en la normativa y jurisprudencia real de ese país — usa la búsqueda web si necesitas verificar algo vigente. ` +
+      `Estructura siempre la respuesta en 3 partes cortas: 1) la norma o vía legal aplicable, 2) el siguiente paso procesal concreto, 3) un plazo estimado. ` +
+      `Sé directo y profesional, en español, sin relleno. Si la legislación de ese país no te queda clara, dilo honestamente en vez de inventar — nunca inventes artículos o sentencias. ` +
+      `Cierra siempre recordando en una línea breve que esto es apoyo informativo y no reemplaza el criterio del abogado a cargo.`;
+  }
+
+  // ---- Configuración de conexión ----
+  const USE_BACKEND = true;
+  const BACKEND_ENDPOINT = 'https://iworkcenter.work/api/legal-agent';
+
+  async function callAgent(userText){
+    conversation.push({ role:'user', content: userText });
+
+    const endpoint = USE_BACKEND ? BACKEND_ENDPOINT : 'https://api.anthropic.com/v1/messages';
+    const body = USE_BACKEND
+      ? { system: systemPrompt(), messages: conversation }
+      : { model:'claude-sonnet-4-6', max_tokens:700, system: systemPrompt(), messages: conversation, tools:[{ type:'web_search_20250305', name:'web_search' }] };
+
+    const response = await fetch(endpoint, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+    if(!response.ok) throw new Error('HTTP ' + response.status);
+    const data = await response.json();
+    const textBlocks = (data.content || []).filter(b=>b.type==='text').map(b=>b.text);
+    const fullText = textBlocks.join('\n').trim() || 'No pude generar una respuesta clara — intenta reformular tu consulta.';
+    conversation.push({ role:'assistant', content: fullText });
+    return fullText;
+  }
+
+  function startGreeting(){
+    addBot('Cuéntame tu caso con tus palabras — reviso la normativa real del país que elijas, y te digo la vía correcta, el siguiente paso y el plazo estimado.');
+    addQuickReplies([
+      'Despidieron a mi cliente sin justa causa',
+      'El arrendatario no paga hace 3 meses',
+      'Necesito la custodia de mi hijo',
+      'Una entidad pública no responde mi derecho de petición'
+    ]);
+  }
+
+  async function handleSend(){
+    const text = chatInput.value.trim();
+    if(!text) return;
+    addUser(text);
+    chatInput.value = '';
+    quickReplies.innerHTML = '';
+    sendBtn.disabled = true;
+
+    const typing = showTyping();
+    try{
+      const reply = await callAgent(text);
+      typing.remove();
+      addBot(formatReply(reply));
+    }catch(err){
+      typing.remove();
+      addBot('No pude conectar con el agente en este momento. Si estás viendo esta página fuera de Claude.ai (por ejemplo ya publicada en tu sitio), recuerda que esta conexión necesita pasar por tu backend — avísale a tu equipo técnico para activarla ahí.');
+      console.error('I WORK / Lawyer agent error:', err);
+    }
+    sendBtn.disabled = false;
+  }
+
+  sendBtn.addEventListener('click', handleSend);
+  chatInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') handleSend(); });
+
+  startGreeting();
+</script>
+</body>
+</html>
