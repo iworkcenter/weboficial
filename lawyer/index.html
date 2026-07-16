@@ -126,6 +126,13 @@
   .quick-replies{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
   .chip{font-family:var(--sans); font-size:12px; padding:8px 13px; border-radius:100px; border:1px solid var(--line); background:#fff; cursor:pointer; transition:border-color .15s, background .15s;}
   .chip:hover{border-color:var(--clay); background:var(--clay-tint);}
+  .chip.doc-chip{background:var(--navy-tint); border-color:var(--navy-tint); color:var(--navy); font-weight:600;}
+  .chip.doc-chip:hover{border-color:var(--navy);}
+  .doc-block{background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-top:8px; font-family:var(--serif); font-size:13px; line-height:1.7; white-space:pre-wrap; max-height:340px; overflow-y:auto;}
+  .doc-actions{display:flex; gap:8px; margin-top:10px;}
+  .doc-actions button{font-family:var(--sans); font-size:12px; font-weight:600; padding:8px 14px; border-radius:100px; border:1px solid var(--line); background:#fff; cursor:pointer; transition:border-color .15s, background .15s, color .15s;}
+  .doc-actions button:hover{border-color:var(--clay); color:var(--clay-dark);}
+  .doc-actions button.copied{border-color:var(--navy); color:var(--navy); background:var(--navy-tint);}
   .chat-input-row{display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line);}
   .chat-input-row input{flex:1; border:1px solid var(--line); border-radius:100px; padding:11px 16px; font-family:var(--sans); font-size:13.5px; outline:none; background:#fff;}
   .chat-input-row input:focus{border-color:var(--clay);}
@@ -406,6 +413,7 @@
   const countrySelect = document.getElementById('countrySelect');
 
   let conversation = []; // historial que se envía completo en cada llamada, tal como exige la API
+  let pendingDocMode = false; // true cuando el próximo mensaje del usuario es un pedido de documento
 
   function addUser(text){
     const d = document.createElement('div');
@@ -422,6 +430,63 @@
     chatLog.scrollTop = chatLog.scrollHeight;
     return d;
   }
+
+  // Renderiza una respuesta en modo documento: texto en bloque + botones Copiar / Descargar
+  function addDocReply(rawText){
+    const d = document.createElement('div');
+    d.className = 'msg bot';
+
+    const block = document.createElement('div');
+    block.className = 'doc-block';
+    block.textContent = rawText;
+
+    const actions = document.createElement('div');
+    actions.className = 'doc-actions';
+
+    const copyBtn = document.createElement('button');
+    copyBtn.textContent = '📋 Copiar documento';
+    copyBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(rawText);
+        copyBtn.textContent = '✓ Copiado';
+        copyBtn.classList.add('copied');
+        setTimeout(()=>{ copyBtn.textContent = '📋 Copiar documento'; copyBtn.classList.remove('copied'); }, 2000);
+      }catch(e){ alert('No se pudo copiar automáticamente. Selecciona el texto y cópialo manualmente.'); }
+    });
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.textContent = '⬇ Descargar (.doc)';
+    downloadBtn.addEventListener('click', ()=>{ downloadAsDoc(rawText); });
+
+    actions.appendChild(copyBtn);
+    actions.appendChild(downloadBtn);
+
+    d.appendChild(block);
+    d.appendChild(actions);
+    chatLog.appendChild(d);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  // Descarga el texto como .doc (abre directo en Word) sin depender de librerías externas
+  function downloadAsDoc(text){
+    const htmlBody = text
+      .split('\n')
+      .map(line => `<p>${line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') || '&nbsp;'}</p>`)
+      .join('');
+    const htmlDoc = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+      <head><meta charset="utf-8"><title>Documento I WORK / Lawyer</title></head>
+      <body style="font-family:Georgia,serif; font-size:12pt;">${htmlBody}</body></html>`;
+    const blob = new Blob(['\ufeff', htmlDoc], { type:'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'documento-iwork-lawyer.doc';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function showTyping(){
     const d = document.createElement('div');
     d.className = 'msg bot';
@@ -432,11 +497,27 @@
   }
   function addQuickReplies(list){
     quickReplies.innerHTML = '';
-    list.forEach(text=>{
+    list.forEach(item=>{
       const c = document.createElement('button');
-      c.className = 'chip';
+      const text = typeof item === 'string' ? item : item.label;
+      c.className = 'chip' + (item.doc ? ' doc-chip' : '');
       c.textContent = text;
-      c.addEventListener('click', ()=>{ chatInput.value = text; handleSend(); });
+      c.addEventListener('click', ()=>{
+        if(item.doc){
+          quickReplies.innerHTML = '';
+          addBot('¿Qué documento necesitas?');
+          addQuickReplies([
+            { label:'📄 Poder', doc:true, send:'Genera un poder especial basado en mi caso.' },
+            { label:'📄 Contrato', doc:true, send:'Genera el contrato correspondiente a mi caso.' },
+            { label:'📄 Derecho de petición', doc:true, send:'Genera un derecho de petición basado en mi caso.' },
+            { label:'📄 Demanda / memorial', doc:true, send:'Genera el memorial o demanda inicial correspondiente a mi caso.' },
+          ]);
+          return;
+        }
+        chatInput.value = item.send || text;
+        pendingDocMode = !!item.send;
+        handleSend();
+      });
       quickReplies.appendChild(c);
     });
   }
@@ -457,9 +538,10 @@
       : countrySelect.value;
     return `Eres el agente legal de I WORK / Lawyer, para abogados independientes y firmas jurídicas. ` +
       `El usuario está consultando sobre la legislación de ${country}. Investiga y responde con base en la normativa y jurisprudencia real de ese país — usa la búsqueda web si necesitas verificar algo vigente. ` +
-      `Estructura siempre la respuesta en 3 partes cortas: 1) la norma o vía legal aplicable, 2) el siguiente paso procesal concreto, 3) un plazo estimado. ` +
+      `MODO CONSULTA (por defecto): estructura la respuesta en 3 partes cortas: 1) la norma o vía legal aplicable, 2) el siguiente paso procesal concreto, 3) un plazo estimado. ` +
+      `MODO DOCUMENTO: si el usuario pide generar, redactar o elaborar un documento (poder, contrato, derecho de petición, memorial, demanda, tutela, u otro), NO uses la estructura de 3 partes. En su lugar redacta el documento COMPLETO, formal y listo para usar, basado en todo el contexto del caso ya conversado. Usa [CORCHETES] para cualquier dato que falte (nombres, cédulas, fechas, direcciones, cuantías). Respeta el formato y las formalidades legales típicas de ${country} para ese tipo de documento. Al final del documento agrega, en una línea aparte, esta nota exacta: "⚠ Este documento es un borrador de apoyo — revísalo y ajústalo antes de firmarlo o radicarlo." ` +
       `Sé directo y profesional, en español, sin relleno. Si la legislación de ese país no te queda clara, dilo honestamente en vez de inventar — nunca inventes artículos o sentencias. ` +
-      `Cierra siempre recordando en una línea breve que esto es apoyo informativo y no reemplaza el criterio del abogado a cargo.`;
+      `En MODO CONSULTA, cierra siempre recordando en una línea breve que esto es apoyo informativo y no reemplaza el criterio del abogado a cargo.`;
   }
 
   // ---- Configuración de conexión ----
@@ -488,18 +570,32 @@
   }
 
   function startGreeting(){
-    addBot('Cuéntame tu caso con tus palabras — reviso la normativa real del país que elijas, y te digo la vía correcta, el siguiente paso y el plazo estimado.');
+    addBot('Cuéntame tu caso con tus palabras — reviso la normativa real del país que elijas, y te digo la vía correcta, el siguiente paso y el plazo estimado. Cuando quieras, también puedo redactarte el documento del caso.');
     addQuickReplies([
       'Despidieron a mi cliente sin justa causa',
       'El arrendatario no paga hace 3 meses',
       'Necesito la custodia de mi hijo',
-      'Una entidad pública no responde mi derecho de petición'
+      'Una entidad pública no responde mi derecho de petición',
+      { label:'📄 Generar un documento', doc:true }
     ]);
+  }
+
+  // Detecta si el mensaje escrito a mano ya es un pedido de documento (además del flujo por botones)
+  function looksLikeDocRequest(text){
+    const t = text.toLowerCase();
+    const verbs = ['genera','redacta','elabora','escribe','prepara','necesito un','hazme un','hazme el'];
+    const docs = ['poder','contrato','derecho de peticion','derecho de petición','memorial','demanda','tutela','documento'];
+    const hasVerb = verbs.some(v=>t.includes(v));
+    const hasDoc = docs.some(d=>t.includes(d));
+    return hasVerb && hasDoc;
   }
 
   async function handleSend(){
     const text = chatInput.value.trim();
     if(!text) return;
+    const isDoc = pendingDocMode || looksLikeDocRequest(text);
+    pendingDocMode = false;
+
     addUser(text);
     chatInput.value = '';
     quickReplies.innerHTML = '';
@@ -509,7 +605,14 @@
     try{
       const reply = await callAgent(text);
       typing.remove();
-      addBot(formatReply(reply));
+      if(isDoc){
+        addDocReply(reply);
+      }else{
+        addBot(formatReply(reply));
+      }
+      addQuickReplies([
+        { label:'📄 Generar un documento', doc:true }
+      ]);
     }catch(err){
       typing.remove();
       addBot('No pude conectar con el agente en este momento. Si estás viendo esta página fuera de Claude.ai (por ejemplo ya publicada en tu sitio), recuerda que esta conexión necesita pasar por tu backend — avísale a tu equipo técnico para activarla ahí.');
