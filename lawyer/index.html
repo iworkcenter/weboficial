@@ -503,7 +503,7 @@
       c.className = 'chip' + (item.doc ? ' doc-chip' : '');
       c.textContent = text;
       c.addEventListener('click', ()=>{
-        if(item.doc){
+        if(item.menu){
           quickReplies.innerHTML = '';
           addBot('¿Qué documento necesitas?');
           addQuickReplies([
@@ -576,7 +576,7 @@
       'El arrendatario no paga hace 3 meses',
       'Necesito la custodia de mi hijo',
       'Una entidad pública no responde mi derecho de petición',
-      { label:'📄 Generar un documento', doc:true }
+      { label:'📄 Generar un documento', doc:true, menu:true }
     ]);
   }
 
@@ -611,7 +611,7 @@
         addBot(formatReply(reply));
       }
       addQuickReplies([
-        { label:'📄 Generar un documento', doc:true }
+        { label:'📄 Generar un documento', doc:true, menu:true }
       ]);
     }catch(err){
       typing.remove();
