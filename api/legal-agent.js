@@ -3,9 +3,6 @@
 // y la API de Claude. La llave ANTHROPIC_API_KEY vive solo aquí, nunca en el HTML.
 
 export default async function handler(req, res) {
-  // CORS — mientras pruebas, "*" es lo más simple.
-  // Cuando ya esté funcionando, cambia "*" por tu dominio real, ej:
-  // res.setHeader('Access-Control-Allow-Origin', 'https://iworkcenter.github.io');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -34,6 +31,7 @@ export default async function handler(req, res) {
   }
 
   const { messages, system } = body || {};
+  console.log('DEBUG legal-agent: content-type=', req.headers['content-type'], 'bodyType=', typeof body, 'bodyKeys=', body ? Object.keys(body) : null, 'messagesIsArray=', Array.isArray(messages));
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Falta "messages" en el body' });
   }
